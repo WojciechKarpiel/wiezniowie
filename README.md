@@ -21,4 +21,4 @@ Jaka jest optymalna strategia dla więźniów? W jakich przypadkach zadziała, a
 
 ## Rozwiązanie
 
-[Tutaj](rozwiazanie.md) jest opis słowno, muzyczny, a dowód formalny w pliku [wiezniowie.v](wiezniowie.v).
+[Tutaj](rozwiazanie.md) jest opis słowno-muzyczny, a dowód formalny w pliku [wiezniowie.v](wiezniowie.v).

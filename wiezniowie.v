@@ -10,7 +10,7 @@ DO POSPRZĄTANIA! KOD PONIŻEJ DZIAŁA I DOWODZI, CO MA DOWODZIĆ, ALE JEST STRA
 DOZRO:
 [] opisać model (więźniowie + podanie rozwiązania 
 
-*)
+ *)
 
 
 (*
@@ -121,23 +121,18 @@ Section Wiezniowie.
     fun lp pozostali => dopełnij_do (suma_modulo pozostali) lp.
 
 
-  (* to będzie do wywalenia się, gdy ogarnę, które lematy odpowiadają za manipulację notacjami, których używam xD *)
-  Lemma żalżal (x y : 'I_n): x + y = Zp_add x y.
-    done.
-  Qed.
-
   Lemma suma_modulo_cat s1 s2 : suma_modulo (s1 ++ s2) = (suma_modulo s1 + suma_modulo s2).
   Proof.
-    elim: s1 => //=; [  rewrite żalżal Zp_add0z //|].
-    move => x s1 ->. rewrite !żalżal  Zp_addA //.
+    elim: s1 => //=; [   rewrite GRing.add0r //|].
+    move => x s1 ->. rewrite GRing.addrA //.
   Qed.
 
   (* suma modulo olewa permutacje *)
   Lemma rotr_niet p q: perm_eq   p q -> suma_modulo p = suma_modulo q.
 
     apply/catCA_perm_subst: p q => s1 s2 s3.
-    rewrite !suma_modulo_cat. rewrite {1}żalżal {1}żalżal.
-    rewrite Zp_addA. rewrite (Zp_addC (suma_modulo s1) (suma_modulo s2)). rewrite  -Zp_addA.
+    rewrite !suma_modulo_cat.
+    rewrite GRing.addrA. rewrite (GRing.addrC (suma_modulo s1) (suma_modulo s2)). rewrite  -GRing.addrA.
     done.
   Qed.
 
@@ -145,9 +140,6 @@ Section Wiezniowie.
     done.
   Qed.
 
-  (* Bool.negb_involutive , ale nie chce bo zniemisiowanie mózgowe *)
-  Lemma nienienienie b : ~~ ~~ b = b.
-  Proof. by case: b. Qed.
   Lemma niepełna_suma lp : suma_modulo wiezniowie = (tnth wiezniowie lp) + suma_modulo (bez_niego lp).
     rewrite -{1}(bezK lp) /z_nim /=.
     rewrite smodp.
@@ -160,36 +152,12 @@ Section Wiezniowie.
     rewrite !(tnth_nth ord0).
 
     rewrite nth_cat.
-    case: ifP .
-
-    move => _.
-    rewrite nth_drop.
-    rewrite addn0 //.
-    (**)
-
-    
-    rewrite ltnNge /=.
-    rewrite -[false]/(~~ true).
-    move => d.
-    apply (f_equal (fun x => ~~ x) ) in d.
-
-    rewrite !nienienienie in d.
-
-    rewrite leqn0 in d.
-    exfalso.
-    rewrite size_drop in d.
-
-    rewrite subn_eq0 in d.
-    pose xd := ltn_ord lp.
-    rewrite size_tuple in d.
-
-    suff: lp < lp.
-      by rewrite ltnn.
-
-      apply: leq_ltn_trans d. exact xd.
+    case: ifP; [rewrite nth_drop addn0 |
+                (* (val 'I_n) będzie zawsze mniejsze niż (size_tuple n-tuple) *)
+                rewrite ltnNge leqn0 size_drop subn_eq0 size_tuple -leqNgt -[lp <= n']/(lp < n) ltn_ord];
+    done.
   Qed.
-
-
+  
   
   (* 
 więzień w zgaduje, że suma_modulo to w.
@@ -200,7 +168,8 @@ więc, jeśli suma_modulo to w, to więzień w zgadnie, co ma na czole
         (elo: suma_modulo wiezniowie = w) : zgadza_sie poprawne_algo w.
     rewrite /zgadza_sie /poprawne_algo /dopełnij_do.
     rewrite -{2}elo (niepełna_suma w).
-    rewrite !żalżal -Zp_addA. rewrite [(Zp_add (suma_modulo (bez_niego w)) (- suma_modulo (bez_niego w)))]Zp_addC. rewrite Zp_addNz Zp_addC Zp_add0z  //.
+    rewrite  -GRing.addrA. rewrite [( (suma_modulo (bez_niego w)) + (- suma_modulo (bez_niego w)))]GRing.addrC.
+    rewrite GRing.addNr GRing.addr0 //. 
   Qed.
 
   Lemma wiezien_zgadl': zgadza_sie poprawne_algo (suma_modulo wiezniowie).
@@ -224,4 +193,3 @@ Definition rozwiń (n: nat) (p: nat) (tpl : p.-tuple 'I_n): n.-tuple ( p.+1.-tup
 
 Lemma rozwiazanie_dziala_zawsze : forall n' : nat, forall wiezniowie: (n'.+1).-tuple 'I_n'.+1, poprawne_rozw wiezniowie (@poprawne_algo n').
 Proof. exact wiezien_zgadl''. Qed.
-
