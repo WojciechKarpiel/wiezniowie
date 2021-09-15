@@ -1,3 +1,6 @@
 *.html
 *.vo
+*.vos
 *.glob
+*.aux
+*.vok
