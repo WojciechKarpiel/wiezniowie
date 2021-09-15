@@ -33,18 +33,24 @@ Section Wiezniowie.
   (* Więzień zgadł, jeśli liczba na jego czole jest taka, jaką policzył jego algorytm *)
   Definition zgadl (algorytm :rozwiazanie) (lp: 'I_n) :=
     tnth wiezniowie lp == algorytm lp (pozostali lp).
-
   Definition poprawne_rozwiazanie (algorytm :rozwiazanie): Prop := exists wiezien, zgadl algorytm wiezien.
 
- (* TUTAJ POPRAWNE ALGO? *)
+  (* Rozwiązanie zagadki - wyjaśnienie w "rozwiazanie.md" *)
+  (* Z taką definicją pracuje się łatwiej niż z: \sum_(i <- liczby) i *)
+  Definition suma_modulo (liczby : seq 'I_n): 'I_n :=  foldr (fun a b => a + b) ord0 liczby.
+  Definition algorytm_wygrywajacy: rozwiazanie :=
+    fun lp pozostali => lp - (suma_modulo pozostali).
 
+  (* Poniżej są już tylko lematy przygotowujące do ostatecznego twierdzenia, że algorytm_wygrywajacy jest zawsze poprawnym rozwiązaniem *)
+  
+  
   (* przywróć więźnia spowrotem do puli, po wycięciu go. Konstrukcja jest taka, aby łatwo było dowieźć lemat o odwracalności przywroc_pozostali  *)
   Definition przywroc (lp : 'I_n) (pozostali: n.-1.-tuple 'I_n) : n.-tuple 'I_n :=
     [tuple of rotr lp (thead [tuple of rot lp wiezniowie] :: pozostali)].
 
-    Lemma przywroc_pozostali  (lp :'I_n): przywroc lp (pozostali lp) = wiezniowie.
-      rewrite /pozostali /przywroc .
-      apply /eqP.
+  Lemma przywroc_pozostali  (lp :'I_n): przywroc lp (pozostali lp) = wiezniowie.
+    rewrite /pozostali /przywroc .
+    apply /eqP.
     rewrite /eq_op /=.
     have -> : behead (rot lp wiezniowie) =   behead [tuple of(rot lp wiezniowie)].
     apply: f_equal.
@@ -57,57 +63,31 @@ Section Wiezniowie.
     done.
   Qed.
 
-  (* PONIŻEJ JEST NIE POSPRZĄTANE, CIĘŻKIE DO CZYTNIA *)
-  
-  
-  
-  
-  
-
-
-
-
-
-  Definition dopełnij_do (co: 'I_n) (do_ : 'I_n) : 'I_n := do_ - co.
-
-    (* Z taką definicją pracuje się łatwiej niż z: \sum_(i <- liczby) i *)
-  Definition suma_modulo (liczby : seq 'I_n): 'I_n :=  foldr (fun a b => a + b) ord0 liczby.
-
-  (* Rozwiązanie zagadki *)
-  Definition poprawne_algo: rozwiazanie :=
-    fun lp pozostali => dopełnij_do (suma_modulo pozostali) lp.
-
-
-  Lemma suma_modulo_cat s1 s2 : suma_modulo (s1 ++ s2) = (suma_modulo s1 + suma_modulo s2).
+  (* suma modulo jest rozdzielna ze względu na łączenie krotek *)
+  Lemma suma_modulo_plusplus s1 s2 : suma_modulo (s1 ++ s2) = (suma_modulo s1 + suma_modulo s2).
   Proof.
-    elim: s1 => //=; [   rewrite GRing.add0r //|].
-    move => x s1 ->. rewrite GRing.addrA //.
+    by elim: s1 => /=; [rewrite GRing.add0r | move => x s1 ->; rewrite GRing.addrA].
   Qed.
 
-  (* suma modulo olewa permutacje *)
-  Lemma rotr_niet p q: perm_eq   p q -> suma_modulo p = suma_modulo q.
-
+  (* suma modulo jest taka sama dla wsystkich permutacji krotki *)
+  Lemma suma_modulo_perm p q: perm_eq   p q -> suma_modulo p = suma_modulo q.
     apply/catCA_perm_subst: p q => s1 s2 s3.
-    rewrite !suma_modulo_cat.
+    rewrite !suma_modulo_plusplus.
     rewrite GRing.addrA. rewrite (GRing.addrC (suma_modulo s1) (suma_modulo s2)). rewrite  -GRing.addrA.
-    done.
+    reflexivity.
   Qed.
 
-  Lemma smodp s a : a + suma_modulo s = suma_modulo (a :: s).
-    done.
-  Qed.
+  Lemma suma_modulo_cons s a : a + suma_modulo s = suma_modulo (a :: s). done. Qed.
 
-  Lemma niepełna_suma lp : suma_modulo wiezniowie = (tnth wiezniowie lp) + suma_modulo (pozostali lp).
-    rewrite -{1}(przywroc_pozostali lp) /przywroc /=.
-    rewrite smodp.
-    apply: rotr_niet.
+  (* jeśli dorzuci się liczbę na czole więźnia do sumy modulo pozostałych, to otrzyma się sumę modulo wszystkich *)
+  Lemma suma_modulo_pozostalych lp : suma_modulo wiezniowie = (tnth wiezniowie lp) + suma_modulo (pozostali lp).
+    rewrite -{1}(przywroc_pozostali lp) /przywroc /= suma_modulo_cons.
+    apply: suma_modulo_perm.
     rewrite  perm_rot.
     suff ->: thead [tuple of rot lp wiezniowie] = tnth wiezniowie lp.
     rewrite perm_cons perm_refl //.
     rewrite /rot /thead.
-
     rewrite !(tnth_nth ord0).
-
     rewrite nth_cat.
     case: ifP; [rewrite nth_drop addn0 |
                 (* (val 'I_n) będzie zawsze mniejsze niż (size_tuple n-tuple) *)
@@ -115,40 +95,19 @@ Section Wiezniowie.
     done.
   Qed.
   
-  
-  (* 
-więzień w zgaduje, że suma_modulo to w.
-więc, jeśli suma_modulo to w, to więzień w zgadnie, co ma na czole
-
-   *)
-  Lemma wiezien_zgadl  (w : 'I_n)
-        (elo: suma_modulo wiezniowie = w) : zgadl poprawne_algo w.
-    rewrite /zgadl /poprawne_algo /dopełnij_do.
-    rewrite -{2}elo (niepełna_suma w).
-    rewrite  -GRing.addrA. rewrite [( (suma_modulo (pozostali w)) + (- suma_modulo (pozostali w)))]GRing.addrC.
-    rewrite GRing.addNr GRing.addr0 //. 
-  Qed.
-
-  Lemma wiezien_zgadl': zgadl poprawne_algo (suma_modulo wiezniowie).
-      by     apply: wiezien_zgadl.
-  Qed.
-  Print wiezien_zgadl'.
-
-  Lemma wiezien_zgadl'': poprawne_rozwiazanie poprawne_algo.
+(* tnth wiezniowie w == suma_modulo wiezniowie - suma_modulo (pozostali w) *)
+  Lemma algorytm_wygrywajacy_jest_zawsze_poprawny: poprawne_rozwiazanie algorytm_wygrywajacy.
   Proof.
+    rewrite /poprawne_rozwiazanie /algorytm_wygrywajacy /zgadl.
     exists (suma_modulo wiezniowie).
-    apply: wiezien_zgadl'.
+    rewrite {2}(suma_modulo_pozostalych (suma_modulo wiezniowie)).
+    rewrite  -GRing.addrA GRing.addrN GRing.addr0 //. 
   Qed.
-  Print wiezien_zgadl''.
-
 End Wiezniowie.
-
-(* wsyzstkie możliwe rozw 'I_n -> x-tuple -> x+1 -tuple*)
-Definition rozwiń (n: nat) (p: nat) (tpl : p.-tuple 'I_n): n.-tuple ( p.+1.-tuple 'I_n) :=
-  [tuple of (map (fun x => [tuple of (x :: tpl)]) (ord_tuple n))].
-
-
-Lemma rozwiazanie_dziala_zawsze : forall n' : nat, forall wiezniowie: (n'.+1).-tuple 'I_n'.+1, poprawne_rozwiazanie wiezniowie (@poprawne_algo n').
-Proof. exact wiezien_zgadl''. Qed.
-
 Close Scope ring_scope.
+
+(* Tak dla pewności, powtórzenie tego samego poza sekcją *)
+Lemma rozwiazanie_dziala_zawsze :
+  forall (n' : nat) (wiezniowie: (n'.+1).-tuple 'I_n'.+1),
+    poprawne_rozwiazanie wiezniowie (@algorytm_wygrywajacy n').
+Proof. exact algorytm_wygrywajacy_jest_zawsze_poprawny. Qed.
