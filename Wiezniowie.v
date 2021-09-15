@@ -95,7 +95,6 @@ Section Wiezniowie.
     done.
   Qed.
   
-(* tnth wiezniowie w == suma_modulo wiezniowie - suma_modulo (pozostali w) *)
   Lemma algorytm_wygrywajacy_jest_zawsze_poprawny: poprawne_rozwiazanie algorytm_wygrywajacy.
   Proof.
     rewrite /poprawne_rozwiazanie /algorytm_wygrywajacy /zgadl.
