@@ -21,34 +21,32 @@ Section CalkowiteModulo.
   Definition Zp_add x y := inZp (x + y).
   Definition Zp_mul x y := inZp (x * y).
 
+  Ltac odwin := intro x; intros; apply: eqP; rewrite /Zp_add /Zp_mul /inZp /eq_op /=.
+  
   Lemma Zp_add0z : left_id Zp0 Zp_add.
   Proof.
-      by move => x; apply: eqP; rewrite /Zp_add add0n /inZp /eq_op /= modn_small.
+      by odwin; rewrite add0n modn_small.
   Qed.
 
   Lemma Zp_mulC : commutative Zp_mul.
   Proof.
-      by move => x y; apply: eqP; rewrite /Zp_mul /inZp /eq_op /= mulnC.
+      by odwin; rewrite mulnC.
   Qed.
 
   Lemma Zp_addC : commutative Zp_add.
   Proof.
-      by move => x y; apply: eqP; rewrite /Zp_add /inZp /eq_op /= addnC.
+      by odwin; rewrite addnC.
   Qed.
 
   Lemma Zp_addA : associative Zp_add.
   Proof.
-    move => x y z; apply: eqP. rewrite /Zp_add /inZp /eq_op /=.
-    rewrite modnDml modnDmr; rewrite addnA //.
+      by odwin; rewrite modnDml modnDmr addnA.
   Qed.
 
   Lemma Zp_addNz : left_inverse Zp0 Zp_opp Zp_add.
-    move => x; apply: eqP. rewrite /Zp_add /inZp /eq_op /=.
-    rewrite modnDml subnK. rewrite modnn //.
-    case: x => [x d  ] /=.
-      by apply: ltnW.
+      by odwin; rewrite modnDml subnK; [rewrite modnn | apply: ltnW; rewrite ltn_ord].
   Qed.
   
   Definition Zp_zmodMixin := ZmodMixin Zp_addA Zp_addC Zp_add0z Zp_addNz.
   Canonical Zp_zmodType := ZmodType 'I_n Zp_zmodMixin. 
-End  CalkowiteModulo.
+End CalkowiteModulo.
