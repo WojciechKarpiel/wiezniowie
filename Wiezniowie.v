@@ -49,18 +49,9 @@ Section Wiezniowie.
     [tuple of rotr lp (thead [tuple of rot lp wiezniowie] :: pozostali)].
 
   Lemma przywroc_pozostali  (lp :'I_n): przywroc lp (pozostali lp) = wiezniowie.
-    rewrite /pozostali /przywroc .
-    apply /eqP.
-    rewrite /eq_op /=.
-    have -> : behead (rot lp wiezniowie) =   behead [tuple of(rot lp wiezniowie)].
-    apply: f_equal.
-    apply /eqP.  done.
-    have -> : (rotr lp    (thead [tuple of rot lp wiezniowie] :: behead [tuple of rot lp wiezniowie]))
-             =  (rotr lp  [tuple of  (thead [tuple of rot lp wiezniowie] :: behead [tuple of rot lp wiezniowie])]).
-    apply: f_equal. apply /eqP. done.
-    rewrite -(tuple_eta [tuple of rot lp wiezniowie]).
-    rewrite rotK.
-    done.
+    apply /eqP; rewrite /pozostali /przywroc /eq_op /=.
+    rewrite -[rotr lp [tuple of thead [tuple of rot lp wiezniowie] :: behead [tuple of rot lp wiezniowie]]]/_.
+    rewrite -tuple_eta rotK //.
   Qed.
 
   (* suma modulo jest rozdzielna ze względu na łączenie krotek *)
@@ -70,11 +61,9 @@ Section Wiezniowie.
   Qed.
 
   (* suma modulo jest taka sama dla wsystkich permutacji krotki *)
-  Lemma suma_modulo_perm p q: perm_eq   p q -> suma_modulo p = suma_modulo q.
+  Lemma suma_modulo_perm p q: perm_eq p q -> suma_modulo p = suma_modulo q.
     apply/catCA_perm_subst: p q => s1 s2 s3.
-    rewrite !suma_modulo_plusplus.
-    rewrite GRing.addrA. rewrite (GRing.addrC (suma_modulo s1) (suma_modulo s2)). rewrite  -GRing.addrA.
-    reflexivity.
+    rewrite !suma_modulo_plusplus GRing.addrA [(_ s1) + (_ s2)]GRing.addrC GRing.addrA //.
   Qed.
 
   Lemma suma_modulo_cons s a : a + suma_modulo s = suma_modulo (a :: s). done. Qed.
@@ -84,11 +73,8 @@ Section Wiezniowie.
     rewrite -{1}(przywroc_pozostali lp) /przywroc /= suma_modulo_cons.
     apply: suma_modulo_perm.
     rewrite  perm_rot.
-    suff ->: thead [tuple of rot lp wiezniowie] = tnth wiezniowie lp.
-    rewrite perm_cons perm_refl //.
-    rewrite /rot /thead.
-    rewrite !(tnth_nth ord0).
-    rewrite nth_cat.
+    suff ->: thead [tuple of rot lp wiezniowie] = tnth wiezniowie lp by rewrite perm_cons perm_refl.
+    rewrite /rot /thead !(tnth_nth ord0) nth_cat.
     case: ifP; [rewrite nth_drop addn0 |
                 (* (val 'I_n) będzie zawsze mniejsze niż (size_tuple n-tuple) *)
                 rewrite ltnNge leqn0 size_drop subn_eq0 size_tuple -leqNgt -[lp <= n']/(lp < n) ltn_ord];
