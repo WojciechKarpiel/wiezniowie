@@ -24,7 +24,7 @@ Jeśli ktoś zna źródło to proszę o podanie.
 
 [Tutaj](Rozwiazanie.md) jest opis słowno-muzyczny, a dowód formalny w pliku [Wiezniowie.v](Wiezniowie.v).
 
-# Szczegóły techniczne
+## Szczegóły techniczne
 
 Wymagane zależności (w nawiasie podano wersje, które na pewno działają):
 
