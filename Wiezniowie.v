@@ -5,9 +5,6 @@ Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 Require Import GrupaPrzemiennaModulo.
 
-
-(* UWAGA: Dowody lematów w trakcie sprzątania, na razie są zabałaganione i przydługie *)
-
 Open Scope ring_scope.
 Section Wiezniowie.
   (* W więzieniu jest n więźniów. Zakładamy, że n > 0 *)

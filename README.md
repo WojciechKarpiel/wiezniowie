@@ -17,8 +17,18 @@ jeśli sprostają wyzwaniu. Naczelnik przedstawił więźniom następujące zasa
 
 Jaka jest optymalna strategia dla więźniów? W jakich przypadkach zadziała, a w jakich nie?
 
-Źródło zagadki: nie wiem, znalazłem tą zagadkę na zkserowanym fragmencie kartki w formie bajki o Pawle i Gawle. Jeśli ktoś zna źródło to proszę o podanie
+Źródło zagadki: nie wiem, znalazłem tą zagadkę na zkserowanym fragmencie kartki w formie bajki o Pawle i Gawle.
+Jeśli ktoś zna źródło to proszę o podanie.
 
 ## Rozwiązanie
 
 [Tutaj](Rozwiazanie.md) jest opis słowno-muzyczny, a dowód formalny w pliku [Wiezniowie.v](Wiezniowie.v).
+
+# Szczegóły techniczne
+
+Wymagane zależności (w nawiasie podano wersje, które na pewno działają):
+
+* [Coq](https://coq.inria.fr/) (8.13.2)
+* [Mathematical Components](https://math-comp.github.io/): ssreflect, algebra (1.12.0)
+
+Kompilacja: `make`
